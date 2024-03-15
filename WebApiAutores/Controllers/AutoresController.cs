@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entidades;
+using WebApiAutores.Servicios;
 
 namespace WebApiAutores.Controllers
 {
@@ -9,10 +10,12 @@ namespace WebApiAutores.Controllers
     public class AutoresController: ControllerBase
     {
         private readonly ApplicationDbcontext context;
+        private readonly IServicio servicio;
 
-        public AutoresController(ApplicationDbcontext context)
+        public AutoresController(ApplicationDbcontext context, IServicio servicio)
         {
             this.context = context;
+            this.servicio = servicio;
         }
         
         [HttpGet]
@@ -20,6 +23,7 @@ namespace WebApiAutores.Controllers
         [HttpGet("/listado")]
         public async Task<ActionResult <List<Autor>>> Get()
         {
+            servicio.RealizarTarea(); 
             return await context.Autores.Include(x=>x.Libros).ToListAsync();
         }
 
@@ -59,13 +63,24 @@ namespace WebApiAutores.Controllers
             return autor;
         }
 
+
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody]Autor autor)
         {
+            var existeAutorConElMismoNombre = await context.Autores.AnyAsync(x => x.Nombre == autor.Nombre);
+            if(existeAutorConElMismoNombre)
+            {
+                return BadRequest($"Ya existe un autor con el nombre {autor.Nombre}");
+            }
             context.Add(autor);
             await context.SaveChangesAsync();
             return Ok();
         }
+
+
+
+
 
         [HttpPut("{id:int}")]
         public async Task<ActionResult> Put(Autor autor, int id)

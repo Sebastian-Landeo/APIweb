@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using WebApiAutores.Controllers;
+using WebApiAutores.Servicios;
 
 namespace WebApiAutores
 {
@@ -7,6 +9,8 @@ namespace WebApiAutores
     {
         public Startup(IConfiguration configuration)
         {
+            var autoresController = new AutoresController(new ApplicationDbcontext(null), 
+                new ServicioA(new Logger()));
             Configuration = configuration;
         }
 
