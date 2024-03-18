@@ -11,11 +11,36 @@ namespace WebApiAutores.Controllers
     {
         private readonly ApplicationDbcontext context;
         private readonly IServicio servicio;
+        private readonly ServicioTransient servicioTransient;
+        private readonly ServicioScoped servicioScoped;
+        private readonly ServicioSingleton servicioSingleton;
+        private readonly ILogger<AutoresController> logger;
 
-        public AutoresController(ApplicationDbcontext context, IServicio servicio)
+        public AutoresController(ApplicationDbcontext context, IServicio servicio, 
+            ServicioTransient servicioTransient, ServicioScoped servicioScoped, 
+            ServicioSingleton servicioSingleton, ILogger<AutoresController> logger) 
         {
             this.context = context;
             this.servicio = servicio;
+            this.servicioTransient = servicioTransient;
+            this.servicioScoped = servicioScoped;
+            this.servicioSingleton = servicioSingleton;
+            this.logger = logger;
+        }
+
+        [HttpGet("GUID")]
+        public ActionResult ObtenerGuids()
+        {
+            return Ok(new
+            {
+                //sale 000000000
+                AutoresController_Transient = servicioTransient.Guid,
+                ServicioA_Transient = servicio.ObtenerTransient(),
+                AutoresController_Scoped = servicioScoped.Guid,
+                ServicioA_Scoped = servicio.ObtenerScoped(),
+                AutoresController_Singleton = servicioSingleton.Guid,
+                ServicioA_Singleton = servicio.ObtenerSingleton()
+            });
         }
         
         [HttpGet]
@@ -23,6 +48,8 @@ namespace WebApiAutores.Controllers
         [HttpGet("/listado")]
         public async Task<ActionResult <List<Autor>>> Get()
         {
+            logger.LogInformation("Estamos atendiendo los autores");
+            logger.LogWarning("Este es un mensaje de prueba");
             servicio.RealizarTarea(); 
             return await context.Autores.Include(x=>x.Libros).ToListAsync();
         }

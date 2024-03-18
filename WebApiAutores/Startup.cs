@@ -9,8 +9,6 @@ namespace WebApiAutores
     {
         public Startup(IConfiguration configuration)
         {
-            var autoresController = new AutoresController(new ApplicationDbcontext(null), 
-                new ServicioA(new Logger()));
             Configuration = configuration;
         }
 
@@ -23,6 +21,12 @@ namespace WebApiAutores
             services.AddDbContext<ApplicationDbcontext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"))
             );
+
+            services.AddTransient<IServicio, ServicioA>();
+
+            services.AddTransient<ServicioTransient>();
+            services.AddScoped<ServicioScoped>();
+            services.AddSingleton<ServicioSingleton>();
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
