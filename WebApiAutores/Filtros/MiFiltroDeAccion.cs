@@ -11,14 +11,15 @@ namespace WebApiAutores.Filtros
             this.logger = logger;
         }
 
-        public void OnActionExecuted(ActionExecutedContext context)
+        public void OnActionExecuting(ActionExecutingContext context)
         {
             logger.LogInformation("Antes de ejecutar la acción");
         }
 
-        public void OnActionExecuting(ActionExecutingContext context)
+        public void OnActionExecuted(ActionExecutedContext context)
         {
             logger.LogInformation("Después de ejecutar la acción");
         }
+        
     }
 }

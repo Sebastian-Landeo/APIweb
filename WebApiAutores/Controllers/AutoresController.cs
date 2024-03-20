@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entidades;
+using WebApiAutores.Filtros;
 using WebApiAutores.Servicios;
 
 namespace WebApiAutores.Controllers
@@ -31,7 +32,8 @@ namespace WebApiAutores.Controllers
         }
 
         [HttpGet("GUID")]
-        [ResponseCache(Duration = 10)]
+        //[ResponseCache(Duration = 10)]
+        [ServiceFilter(typeof(MiFiltroDeAccion))] 
         public ActionResult ObtenerGuids()
         {
             return Ok(new
@@ -48,10 +50,12 @@ namespace WebApiAutores.Controllers
         [HttpGet]
         [HttpGet("listado")]
         [HttpGet("/listado")]
-        [ResponseCache(Duration = 10)]
-        [Authorize]
+        //[ResponseCache(Duration = 10)]
+        [ServiceFilter(typeof(MiFiltroDeAccion))]
+        //[Authorize]
         public async Task<ActionResult <List<Autor>>> Get()
         {
+            throw new NotImplementedException();
             logger.LogInformation("Estamos atendiendo los autores");
             logger.LogWarning("Este es un mensaje de prueba");
             servicio.RealizarTarea(); 
