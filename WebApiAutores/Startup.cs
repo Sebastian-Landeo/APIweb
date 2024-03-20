@@ -1,6 +1,8 @@
 ﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Controllers;
+using WebApiAutores.Middlewares;
 using WebApiAutores.Servicios;
 
 namespace WebApiAutores
@@ -28,6 +30,10 @@ namespace WebApiAutores
             services.AddScoped<ServicioScoped>();
             services.AddSingleton<ServicioSingleton>();
 
+            services.AddResponseCaching();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
@@ -36,25 +42,9 @@ namespace WebApiAutores
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
 
-            app.Use(async (contexto, siguiente) =>
-            {
-                using (var ms = new MemoryStream())
-                {
-                    var cuerpoOriginalRespuesta = contexto.Response.Body;
-                    contexto.Response.Body = ms;
+            //app.UseMiddleware<LoguearRespuestasHTTPMiddleware>();
+            app.UseLoguearRespuestaHTTP();
 
-                    await siguiente.Invoke();
-
-                    ms.Seek(0, SeekOrigin.Begin);
-                    string respuesta = new StreamReader(ms).ReadToEnd();
-                    ms.Seek(0,SeekOrigin.Begin);
-
-                    await ms.CopyToAsync(cuerpoOriginalRespuesta);
-                    contexto.Response.Body = cuerpoOriginalRespuesta;
-
-                    logger.LogInformation(respuesta);
-                }
-            });
             
             app.Map("/ruta1", app =>
             {
@@ -74,6 +64,8 @@ namespace WebApiAutores
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseResponseCaching();
 
             app.UseAuthorization();
 

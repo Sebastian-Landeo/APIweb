@@ -2,13 +2,21 @@
 
 namespace WebApiAutores.Middlewares
 {
+    public static class LoguearRespuestaHTTPMiddlewareExtensions
+    {
+        public static IApplicationBuilder UseLoguearRespuestaHTTP(this IApplicationBuilder app)
+        {
+            return app.UseMiddleware<LoguearRespuestasHTTPMiddleware>();
+        }
+    }
+
     public class LoguearRespuestasHTTPMiddleware
     {
         private readonly RequestDelegate siguiente;
         private readonly ILogger<LoguearRespuestasHTTPMiddleware> logger;
 
         public LoguearRespuestasHTTPMiddleware(RequestDelegate siguiente, 
-            ILogger<LoguearRespuestasHTTPMiddleware> logbger)
+            ILogger<LoguearRespuestasHTTPMiddleware> logger)
         {
             this.siguiente = siguiente;
             this.logger = logger;
