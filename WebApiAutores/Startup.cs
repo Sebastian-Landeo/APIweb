@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Controllers;
 using WebApiAutores.Filtros;
 using WebApiAutores.Middlewares;
-using WebApiAutores.Servicios;
 
 namespace WebApiAutores
 {
@@ -28,18 +27,6 @@ namespace WebApiAutores
                 options.UseSqlServer(Configuration.GetConnectionString("defaultConnection"))
             );
 
-            services.AddTransient<IServicio, ServicioA>();
-
-            services.AddTransient<ServicioTransient>();
-            services.AddScoped<ServicioScoped>();
-            services.AddSingleton<ServicioSingleton>();
-            services.AddHostedService<EscribirEnArchivo>();
-            //Filtro  personalilzado
-            services.AddTransient<MiFiltroDeAccion>();
-
-
-
-            services.AddResponseCaching();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
@@ -51,17 +38,8 @@ namespace WebApiAutores
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
 
-            //app.UseMiddleware<LoguearRespuestasHTTPMiddleware>();
             app.UseLoguearRespuestaHTTP();
 
-            
-            app.Map("/ruta1", app =>
-            {
-                app.Run(async contexto =>
-                {
-                    await contexto.Response.WriteAsync("Estoy intercepetando la tubería");
-                });
-            });
             
 
             if (env.IsDevelopment())
@@ -73,8 +51,6 @@ namespace WebApiAutores
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseResponseCaching();
 
             app.UseAuthorization();
 

@@ -3,79 +3,30 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApiAutores.Entidades;
 using WebApiAutores.Filtros;
-using WebApiAutores.Servicios;
 
 namespace WebApiAutores.Controllers
 {
     [ApiController]
     [Route("api/autores")]
-    //[Authorize]
     public class AutoresController: ControllerBase
     {
         private readonly ApplicationDbcontext context;
-        private readonly IServicio servicio;
-        private readonly ServicioTransient servicioTransient;
-        private readonly ServicioScoped servicioScoped;
-        private readonly ServicioSingleton servicioSingleton;
-        private readonly ILogger<AutoresController> logger;
 
-        public AutoresController(ApplicationDbcontext context, IServicio servicio, 
-            ServicioTransient servicioTransient, ServicioScoped servicioScoped, 
-            ServicioSingleton servicioSingleton, ILogger<AutoresController> logger) 
+        public AutoresController(ApplicationDbcontext context) 
         {
             this.context = context;
-            this.servicio = servicio;
-            this.servicioTransient = servicioTransient;
-            this.servicioScoped = servicioScoped;
-            this.servicioSingleton = servicioSingleton;
-            this.logger = logger;
         }
 
-        [HttpGet("GUID")]
-        //[ResponseCache(Duration = 10)]
-        [ServiceFilter(typeof(MiFiltroDeAccion))] 
-        public ActionResult ObtenerGuids()
-        {
-            return Ok(new
-            {
-                AutoresController_Transient = servicioTransient.Guid,
-                ServicioA_Transient = servicio.ObtenerTransient(),
-                AutoresController_Scoped = servicioScoped.Guid,
-                ServicioA_Scoped = servicio.ObtenerScoped(),
-                AutoresController_Singleton = servicioSingleton.Guid,
-                ServicioA_Singleton = servicio.ObtenerSingleton()
-            });
-        }
         
         [HttpGet]
-        [HttpGet("listado")]
-        [HttpGet("/listado")]
-        //[ResponseCache(Duration = 10)]
-        [ServiceFilter(typeof(MiFiltroDeAccion))]
-        //[Authorize]
-        public async Task<ActionResult <List<Autor>>> Get()
+        public async Task<List<Autor>> Get()
         {
-            throw new NotImplementedException();
-            logger.LogInformation("Estamos atendiendo los autores");
-            logger.LogWarning("Este es un mensaje de prueba");
-            servicio.RealizarTarea(); 
-            return await context.Autores.Include(x=>x.Libros).ToListAsync();
+            return await context.Autores.ToListAsync();
         }
 
-        [HttpGet("primero")]
-        public async Task<ActionResult<Autor>> PrimerAutor([FromHeader]int miValor, [FromQuery]string nombre)
-        {
-            return await context.Autores.FirstOrDefaultAsync();
-        }
 
-        [HttpGet("primero2")]
-        public  ActionResult<Autor> PrimerAutor2()
-        {
-            return new Autor() { Nombre = "Inventado" };
-        }
-
-        [HttpGet("{id:int}/{param2?}")]
-        public async Task<ActionResult<Autor>> Get(int id,string param2)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Autor>> Get(int id)
         {
             var autor = await context.Autores.FirstOrDefaultAsync(x => x.Id == id);
             if (autor == null)
